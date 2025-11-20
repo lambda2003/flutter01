@@ -19,7 +19,7 @@ class _HomeState extends State<Home> {
   late double longData; //= 127.06298; // longtitue
   late MapController mapController;
   late bool canRun;
-  late List location;
+  // late List location;
   double _initLatData = 0;
   double _initLongData = 0;
   final List<Map<String,dynamic>> list = [
@@ -63,7 +63,7 @@ class _HomeState extends State<Home> {
     kindChoice = 0;
     mapController = MapController();
     canRun = false;
-    location = ['사대문', '둘리 뮤지엄', '서대문 형무소 역사관']; // 현재 위치를 클릭하면 어디다 나오는 부분.
+    // location = ['사대문', '둘리 뮤지엄', '서대문 형무소 역사관']; // 현재 위치를 클릭하면 어디다 나오는 부분.
     tmpList = list;
     double x=0;
     double y = 0;
@@ -89,31 +89,27 @@ class _HomeState extends State<Home> {
 
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
-      getCurrentLocation();
+      // getCurrentLocation();
+      canRun = true;
+      setState(() {});
     }
   }
 
   
 
   getCurrentLocation() async {
-    // 현재 위치를 얻는다.
-    Position position = await Geolocator.getCurrentPosition();
-    currentPosition = position;
-    canRun = true;
-    latData = currentPosition.latitude;
-    longData = currentPosition.longitude;
+      Position position = await Geolocator.getCurrentPosition();
+      currentPosition = position;
+      canRun = true;
+      latData = currentPosition.latitude;
+      longData = currentPosition.longitude;
+      return true;
 
- 
-
-    // print('latitude=$latData, long:=$longData');
-    setState(() {});
-    // print('============== End Get Current Location');
+    
   }
 
   changeMakerToCurrent(double x, double y, String name){
-   
     tmpList = [{"latData":x,"longData":y,"name":name,'color':Colors.red}];
-   
   }
 
 
@@ -164,15 +160,21 @@ class _HomeState extends State<Home> {
         
       ),
       floatingActionButton:  FloatingActionButton(
-            onPressed: (){
-              getCurrentLocation();
-
-              latData = currentPosition.latitude;
-              longData = currentPosition.longitude;
-              mapController.move(latlng.LatLng(latData, longData), 17.0);
-
-              changeMakerToCurrent(latData,longData,'현재위치');
+            onPressed: () async {
+              canRun = false;
               setState(() {});
+              if(await getCurrentLocation()) {
+
+                latData = currentPosition.latitude;
+                longData = currentPosition.longitude;
+                mapController.move(latlng.LatLng(latData, longData), 17.0);
+
+                changeMakerToCurrent(latData,longData,'현재위치');
+                setState(() {});
+
+              }
+
+             
               
             },
             backgroundColor:  Colors.blue,
@@ -188,7 +190,12 @@ class _HomeState extends State<Home> {
                   alignment: Alignment.topRight,
                   child: Column(
                     children: [
-                      Text('abc')
+                      Text(
+                        'abc',
+                        style:TextStyle(
+                          color:Colors.white
+                        )
+                      )
                     ],
                   )
                 ),
@@ -258,12 +265,6 @@ class _HomeState extends State<Home> {
         )
       ],
     );
-  }
-
-  // Functions
-
-  addLocation(){
-
   }
 
 }
