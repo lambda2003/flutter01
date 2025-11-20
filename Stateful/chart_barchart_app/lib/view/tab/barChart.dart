@@ -45,9 +45,12 @@ class _BarChartState extends State<BarChart> {
                 print(LoginController.to.isLogin.toString());
               }else{
                 LoginController.to.login();
+              
                 print(LoginController.to.isLogin.toString());
               }
-              
+                setState(() {
+                  
+                });
             }, child: Text('login/out')),
             SizedBox(
               width: 380,
