@@ -21,17 +21,25 @@ class _HomeState extends State<Home> {
   bool _isStart = false;
   bool _isBlank = false;
   DateTime? alarmSetTime;
+
   @override
   void initState() {
     super.initState();
-    currentDateTime = '';
-    chosenDateTime = null;
-    alarmSetTime = null;
+
+    currentDateTime = '';       // 현재 시간 보여주기
+    chosenDateTime = null;      // 선택한 시간 보여주기
+    alarmSetTime = null;        // 선택한 시간을 알람에 적용
+    
+    // todo: 현재 _isRunning은 안쓰이고 있음. 
     _isRunning = true;
+    
+    // LOOP
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (!_isRunning) {
         print('Timer cancelled =====');
         timer.cancel();
+        // 셋팅을 모두 초기화
+        resetAlram(true);
       }
       _addItem();
     });
@@ -71,25 +79,6 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  String _weekDayToString(int weekday) {
-    switch (weekday) {
-      case 1:
-        return '월';
-      case 2:
-        return '화';
-      case 3:
-        return '수';
-      case 4:
-        return '목';
-      case 5:
-        return '금';
-      case 6:
-        return '토';
-      default:
-        return '일';
-    }
-  }
-
   @override
   void dispose() {
     _timer.cancel();
@@ -104,12 +93,12 @@ class _HomeState extends State<Home> {
                 ? Colors.red
                 : Colors.white
           : Colors.white,
-      appBar: AppBar(title: Text('date picker 2')),
+      appBar: AppBar(title: Text('알람 (DatePick2)')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('현재 시간: ${currentDateTime}'),
+            Text('현재 시간: $currentDateTime'),
             SizedBox(
               width: 300,
               height: 200,
@@ -117,9 +106,7 @@ class _HomeState extends State<Home> {
                 initialDateTime: DateTime.now(),
                 use24hFormat: true,
                 // showTimeSeparator: true,
-                onDateTimeChanged: (value) async {
-                  chosenDateTime = value;
-                },
+                onDateTimeChanged: (value) => chosenDateTime = value,
               ),
             ),
             Text(
@@ -154,32 +141,20 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-
-            // _isAlram && _isStart
-            //     ? ElevatedButton(
-            //         onPressed: () => resetAlram(true),
-            //         child: Text('Stop Alram'),
-            //       )
-            //     : ElevatedButton(
-            //         onPressed: () async => await resetAlram(false),
-            //         child: Text('Set Alram'),
-            //       ),
           ],
         ),
       ),
     );
   }
 
-  // == functions
+  // == Functions
   String _chosenItem(DateTime now) {
-    String xx =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}' +
+
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}' +
         '-${now.day.toString().padLeft(2, '0')}' +
         ' ${_weekDayToString(now.weekday)}' +
         ' ${now.hour.toString().padLeft(2, '0')}' +
         ':${now.minute.toString().padLeft(2, '0')}';
-
-    return xx;
   }
 
   resetAlram(bool isReset) async {
@@ -225,4 +200,24 @@ class _HomeState extends State<Home> {
       );
     }
   }
+
+  String _weekDayToString(int weekday) {
+    switch (weekday) {
+      case 1:
+        return '월';
+      case 2:
+        return '화';
+      case 3:
+        return '수';
+      case 4:
+        return '목';
+      case 5:
+        return '금';
+      case 6:
+        return '토';
+      default:
+        return '일';
+    }
+  }
+
 }
