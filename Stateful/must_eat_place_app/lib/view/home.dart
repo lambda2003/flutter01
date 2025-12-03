@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:must_eat_place_app/model/place.dart';
 import 'package:must_eat_place_app/view/check_location.dart';
 import 'package:must_eat_place_app/view/insert_data.dart';
 import 'package:must_eat_place_app/view/update_data.dart';
@@ -50,7 +51,7 @@ class _HomeState extends State<Home> {
                             motion: BehindMotion(),
                             children: [
                               SlidableAction(
-                                padding: EdgeInsets.fromLTRB(10, 0,0,0),
+                                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                                 alignment: Alignment.centerLeft,
                                 onPressed: (v) => Get.to(
                                   UpdateData(),
@@ -96,6 +97,22 @@ class _HomeState extends State<Home> {
                                     ),
                                   ],
                                 ),
+                                IconButton(
+                                  onPressed: () =>
+                                      addLikeAction(snapshot.data![index]),
+                                  icon: Icon(
+                                    Icons.favorite,
+                                    size: 20,
+                                    color: Colors.pink[500],
+                                  ),
+                                ),
+                                Text(
+                                  '${snapshot.data![index].likeCount}',
+                                  style: TextStyle(
+                                    color: Colors.pink[500],
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -117,6 +134,14 @@ class _HomeState extends State<Home> {
 
   deleteAction(int seq) async {
     int result = await db.deleteData(seq);
+    setState(() {});
+  }
+
+  addLikeAction(Place place) async {
+    int count = place.likeCount!;
+    count++;
+    place.likeCount = count;
+    await db.updateData(place);
     setState(() {});
   }
 }

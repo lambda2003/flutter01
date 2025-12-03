@@ -53,6 +53,9 @@ class _UpdateDataState extends State<UpdateData> {
 
   @override
   Widget build(BuildContext context) {
+       Size screenSize = MediaQuery.of(context).size;
+    double screenWidth = screenSize.width~/100 * 100;
+    double screenHeight =  screenSize.height~/100 * 100;
     return Scaffold(
       appBar: AppBar(
         title: Text('맛집변경'),
@@ -63,125 +66,206 @@ class _UpdateDataState extends State<UpdateData> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 50,
-            ),
+           
             Container(
-              width: 400,
-              height: 200,
-              color: Colors.grey,
-              
-              child: 
-              Stack(
-                children: [
-                  imageFile != null
-                  ? Center(child:Image.file(File(imageFile!.path), width: 200))
+                width: 400,
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey[300],
+                ),
+
+                margin: EdgeInsets.fromLTRB(0, 50, 0, 20),
+                child: Stack(
+                  alignment: Alignment.topRight,
+
+                  children: [
+                    imageFile != null
+               ? Center(child:Image.file(File(imageFile!.path), width: 200))
                   : Center(child:Image.memory(place!.image!,width:200)),
-                   ElevatedButton(
-              onPressed: () => getImagefromDevice(ImageSource.gallery),
-              child: Text('Image'),
-            ),
-                ],
-              )
-
-              // GestureDetector(
-              //   onTap: ()=>getImagefromDevice(ImageSource.gallery),
-              //   child: imageFile != null
-              //     ? Image.file(File(imageFile!.path), width: 200)
-              //     : Image.memory(place!.image!,width:100),
-              // )
-              
-              
-            ),
-
-            Row(
-              spacing: 10,
-              children: [
-                Text('위치 : '),
-                SizedBox(
-                  width: 175,
-                  child: TextField(
-                    controller: latController,
-                    decoration: InputDecoration(
-                      labelText: '위도',
-                      labelStyle: TextStyle(fontSize: 12),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        // style: ElevatedButton.styleFrom(
+                        //   shape: RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.circular(5)
+                        //   )
+                        // ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondaryContainer,
+                        ),
+                        onPressed: () =>
+                            getImagefromDevice(ImageSource.gallery),
+                        icon: Icon(Icons.image_search),
+                      ),
                     ),
-                  ),
-                ),
-
-                SizedBox(
-                  width: 175,
-                  child: TextField(
-                    controller: lngController,
-                    decoration: InputDecoration(
-                      labelText: '경도',
-                      labelStyle: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            Row(
-              spacing: 10,
-              children: [
-                Text('이름 :'),
-                SizedBox(
-                  width: 350,
-                  child: TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: '이름을 입력하세요',
-                      labelStyle: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              spacing: 10,
-              children: [
-                Text('전화 :'),
-                SizedBox(
-                  width: 350,
-                  child: TextField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      labelText: '전화번호를 입력하세요',
-                      labelStyle: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            Row(
-              spacing: 10,
-              children: [
-                Text('평가 :'),
-                SizedBox(
-                  width: 350,
-                  child: TextField(
-                    controller: estimateController,
-                    decoration: InputDecoration(
-                      labelText: '평가를 입력하세요',
-                      labelStyle: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: () => updateAction(),
-                  child: Text('입력'),
+                  ],
                 ),
               ),
-            ),
+
+
+
+
+              Row(
+                spacing: 10,
+                children: [
+                  // Text(
+                  //   '위치 : ',
+                  //   style: TextStyle(
+                  //     // fontSize: 14,
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
+                  SizedBox(
+                    width: screenWidth/1.85,
+                    height: 40,
+                    
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 3, 0, 3),
+                      child: TextField(
+                        controller: latController,
+                        style: TextStyle(
+                          fontSize: 13,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '위도',
+                          labelStyle: TextStyle(fontSize: 12),
+                          iconColor: Colors.grey[600], 
+                          icon: Icon(Icons.gps_fixed,size:25),
+                           border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ), 
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: screenWidth/2-27,
+                    height: 40,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: TextField(
+                        controller: lngController,
+                          style: TextStyle(
+                          fontSize: 13,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '경도',
+                          labelStyle: TextStyle(fontSize: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ), 
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+         
+                  SizedBox(
+                    width: screenWidth-5,
+                    height: 50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: TextField(
+                        controller: nameController,
+                          style: TextStyle(
+                          fontSize: 13,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '상점명을 입력하세요',
+                          labelStyle: TextStyle(fontSize: 12),
+                          icon: Icon(Icons.storefront,size:25),
+                           border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            
+                          ),
+                           iconColor: Colors.grey[600],
+                        ),
+                        
+                      ),
+                    ),
+                  ),
+        
+      
+                  SizedBox(
+                    width: screenWidth-5,
+                    height: 50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: TextField(
+                        controller: phoneController,
+                          style: TextStyle(
+                          fontSize: 13,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '전화번호를 입력하세요',
+                          labelStyle: TextStyle(fontSize: 12),
+                     
+                          icon:Icon(Icons.phone_android,size:25),
+                           border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ), 
+                        ),
+                      ),
+                    ),
+                  ),
+             
+     
+                  SizedBox(
+                    width: screenWidth-5,
+
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: TextField(
+                        controller: estimateController,
+                        maxLines: 6,
+                        minLines: 3,
+                        textAlignVertical: TextAlignVertical.top,
+                          style: TextStyle(
+                          fontSize: 13,
+                        ),
+                        
+                        decoration: InputDecoration(
+                          labelText: '평가를 입력하세요',
+                          labelStyle: TextStyle(fontSize: 12),
+                           iconColor: Colors.grey[600],
+                          icon:Icon(Icons.rate_review_outlined,size:25),
+                          
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              
+                            ), 
+                        ),
+                      ),
+                    ),
+                  ),
+   
+
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.secondaryContainer,
+                    ),
+                
+                    onPressed: () => updateAction(),
+                    child: Text('입력'),
+                  ),
+                ),
+              ),
              
           ],
         )

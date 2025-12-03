@@ -20,7 +20,8 @@ class DatabaseHandler {
           lng real,
           image blob,
           estimate text,
-          initDate text
+          initDate text,
+          likeCount integer not null default 0
           )
           """
         );
@@ -54,7 +55,6 @@ class DatabaseHandler {
      final queryResult = await db.rawQuery(
         'select * from musteatplace'
       );
-      print(queryResult.length);
       return queryResult.map((data) => Place.fromJson(data)).toList();
   }
 
@@ -62,7 +62,6 @@ class DatabaseHandler {
   // 인서트
   Future<int> insertData(Place place) async {
     Database db = await initDatabase();
-    print('aaaaaaa====');
     return await db.rawInsert(
       """
         insert into musteatplace(
@@ -81,7 +80,7 @@ class DatabaseHandler {
       """
         update musteatplace set
           name=?,phone=?,lat=?,lng=?,
-          image=?,estimate=?,initDate=?
+          image=?,estimate=?,initDate=?,likeCount=?
          where seq=?
       """,
       [
@@ -92,6 +91,7 @@ class DatabaseHandler {
         place.image,
         place.estimate,
         place.initDate.toString(),
+        place.likeCount,
         place.seq
       ]
     );
@@ -109,5 +109,7 @@ class DatabaseHandler {
 
   }
 
+
+  
 
 }

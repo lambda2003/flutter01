@@ -26,7 +26,7 @@ class _DeletedListState extends State<DeletedList> {
         title: Text('deleted list')
       ),
       body: FutureBuilder(
-        future: db.getTodoList(null, 'todolist_deleted'), 
+        future: db.getTodoList(null, TableName.todolist_deleted,0), 
         builder: (context, snapshot) {
           return ListView.builder(
             itemCount: snapshot.data != null? snapshot.data!.length:0,
@@ -41,7 +41,7 @@ class _DeletedListState extends State<DeletedList> {
                     children: [
                       Text('id: ${snapshot.data![index].id}'),
                       Text('title: ${snapshot.data![index].title}'),
-                      Text('startDate: ${snapshot.data![index].startDate!.substring(0,16)}'),
+                      Text('startDate: ${snapshot.data![index].startDate!.toString().substring(0,16)}'),
                     ],
                   )
                 ),

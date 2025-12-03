@@ -11,6 +11,7 @@ class Place{
   Uint8List? image;
   String? estimate;
   DateTime? initDate;
+  int? likeCount=0;
 
   Place(
     {
@@ -21,7 +22,8 @@ class Place{
       this.lng,
       this.image,
       this.estimate,
-      this.initDate
+      this.initDate,
+      this.likeCount,
     }
   );
 
@@ -33,7 +35,7 @@ class Place{
   lng = json['lng'],
   image = json['image'],
   estimate = json['estimate'],
-  initDate = DateTime.parse(json['initDate']);
-
+  initDate = DateTime.parse(json['initDate']),
+  likeCount = json['likeCount'];
 
 }

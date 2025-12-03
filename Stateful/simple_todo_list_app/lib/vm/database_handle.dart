@@ -10,7 +10,7 @@ enum TableName {
 
 class DatabaseHandle {
 
-
+ final int limitNum = 3;
 
  Future<Database> initDatabase() async {
   String path = await getDatabasesPath();
@@ -22,6 +22,9 @@ class DatabaseHandle {
           create table todolist (
             id integer primary key autoincrement,
             title text,
+            content text,
+            isAlram integer,
+            importance integer not null default 5,
             startDate text,
             endDate text
           )
@@ -32,6 +35,9 @@ class DatabaseHandle {
           create table todolist_deleted (
             id integer primary key,
             title text,
+            content text,
+            isAlram integer,
+            importance integer,
             startDate text,
             endDate text
           )
@@ -44,45 +50,74 @@ class DatabaseHandle {
  } 
  
 
-  Future<List<TodoList>> getTodoList(int? id, String tableName) async{
+  Future<List<TodoList>> getTodoList(Map<String,dynamic>? kwd, TableName tableName,int s) async{
     Database db = await initDatabase();
-    if(id == null){
+    List<Map<String,Object?>> queryResults = [];
+    if(kwd == null){
       
-      final List<Map<String,Object?>> queryResults = await db.rawQuery("""
-        select * from ${tableName.toString()}
+      queryResults = await db.rawQuery("""
+        select * from ${tableName.name.toString()} order by startDate DESC limit ?,?
       
-      """);
+      """,[s,limitNum]);
       
-      return queryResults.map((d)=>TodoList.fromJson(d)).toList();
+      print('================${queryResults.length}');
     }else{
-      final List<Map<String,Object?>> queryResults = await db.rawQuery("""
-        select * from ${tableName.toString()} where id=?
+      if(kwd['id']!=null) {
+
+       queryResults = await db.rawQuery("""
+          select * from ${tableName.name.toString()} where id=? order by startDate DESC limit ?,?
+        """,[kwd['id'],s,limitNum]);
+        
+      }else if(kwd['name']!=null) {
+        queryResults = await db.rawQuery("""
+          select * from ${tableName.name.toString()} where title like ? or content like ? order by startDate DESC limit ?,?
+        """,['%${kwd["name"]}%','%${kwd["name"]}%',s,limitNum]);
+      }else if(kwd['isAlram']!=null){
+        queryResults = await db.rawQuery("""
+        select * from ${tableName.name.toString()} where isAlram=?  order by startDate DESC limit ?,?
       
-      """,[id]);
+      """,[kwd['isAlram'],s,limitNum]);
       
-      return queryResults.map((d)=>TodoList.fromJson(d)).toList();
+      }else if(kwd['startDate']!=null){
+           queryResults = await db.rawQuery("""
+        select * from ${tableName.name.toString()} where startDate>=? order by startDate DESC limit ?,?
+      
+        """,[kwd['startDate'],s,limitNum]);
+      }else if(kwd['importance']!=null){
+           queryResults = await db.rawQuery("""
+        select * from ${tableName.name.toString()} order by importance DESC,startDate DESC limit ?,?
+      
+        """,[s,limitNum]);
+      }
+
+
+        
     }
+    // if(queryResults.length>0)
+      return queryResults.map((d)=>TodoList.fromJson(d)).toList();
+    // else
+    //   return [];
   }
 
-  Future<int> insertTodoList(TodoList todolist, String tableName) async {
+  Future<int> insertTodoList(TodoList todolist, TableName tableName) async {
 
     final Database db = await initDatabase();
     return await db.rawInsert("""
-      insert into ${tableName}(title,startDate) values (?,?)
+      insert into ${tableName.name}(title,importance,isAlram,startDate) values (?,?,?,?)
     
     """
-    ,[todolist.title,todolist.startDate]);
+    ,[todolist.title,todolist.importance, todolist.isAlram ,todolist.startDate.toString()]);
 
   }
 
-   Future<int> updateTodoList(TodoList todolist, String tableName) async {
+   Future<int> updateTodoList(TodoList todolist, TableName tableName) async {
 
     Database db = await initDatabase();
     return await db.rawUpdate("""
-      update ${tableName.toString()} set title=?,startDate=? where id=?
+      update ${tableName.name.toString()} set title=?,importance=?,isAlram=?,startDate=? where id=?
     
     """
-    ,[todolist.title,todolist.startDate,todolist.id]);
+    ,[todolist.title,todolist.importance,todolist.isAlram,todolist.startDate.toString(),todolist.id]);
 
   }
 
@@ -91,7 +126,7 @@ class DatabaseHandle {
     Database db = await initDatabase();
 
     // Get ID
-    List<TodoList> d = await getTodoList(id,'todolist');
+    List<TodoList> d = await getTodoList({"id":id},TableName.todolist,0);
 
     await db.rawDelete("""
       delete from todolist where id=?
