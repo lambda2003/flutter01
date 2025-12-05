@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:simple_todo_list_app/model/todo_list.dart';
 import 'package:simple_todo_list_app/util/today_report.dart';
+import 'package:simple_todo_list_app/view/calendar_view.dart';
 import 'package:simple_todo_list_app/view/deleted_list.dart';
 import 'package:simple_todo_list_app/view/home_timer.dart';
 import 'package:simple_todo_list_app/view/insert_todolist.dart';
@@ -52,8 +53,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-
+    Size screenSize = MediaQuery.of(context).size;;
     return Scaffold(
       // backgroundColor: isAlarmOnColor ? Colors.red : Colors.white,
       appBar: AppBar(
@@ -64,21 +64,25 @@ class _HomeState extends State<Home> {
           //   icon: Icon(Icons.delete),
           // ),
           ElevatedButton(
-            onPressed: () => {
-              //
-            },
-            child: GestureDetector(
-              onTap: () {
-                print('111111');
-                kwd = {'isAlarm': 1};
+            onPressed: () {
+              if(TodayReport.alarmCount>0){
+                 kwd = {'isAlarm': 1};
                 setState(() {});
-              },
-              child: HomeTimer(isTurnOn: isAlarmOn, db: db),
-            ),
+              }else{
+                showMessage(-115, '알람');
+              }
+            },
+            child: HomeTimer(isTurnOn: isAlarmOn, db: db),
 
             // icon: isAlarmOn
             //     ? Icon(Icons.notifications_active, color: Colors.red[400])
             //     : Icon(Icons.notifications_off),
+          ),
+          IconButton(
+            onPressed: () => Get.to(()=>
+              CalendarView(db:db),
+            ), //actionDialog('insert', null),
+            icon: Icon(Icons.calendar_month),
           ),
           IconButton(
             onPressed: () => Get.to(
@@ -261,8 +265,9 @@ visualDensity: VisualDensity.comfortable,
                   startNum,
                 ), //db!.getTodoList(null, TableName.todolist,startNum),
                 builder: (context, snapshot) {
-                  return snapshot.hasData
-                      ? snapshot.data!.length == 0
+                  return 
+                  // snapshot.hasData ?
+                       snapshot.data==null || snapshot.data!.length == 0
                             ? Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -406,8 +411,8 @@ visualDensity: VisualDensity.comfortable,
                                     ),
                                   );
                                 },
-                              )
-                      : Center(child: const CircularProgressIndicator());
+                              );
+                      // : Center(child: const CircularProgressIndicator());
                 },
               ),
             ),
@@ -462,6 +467,12 @@ visualDensity: VisualDensity.comfortable,
           '알림',
           '$msg일 불가합니다. 날짜를 변경하세요.',
           backgroundColor: Colors.orange[500],
+        );
+      }else if(i == -115){
+          Get.snackbar(
+          '알림',
+          '오늘 $msg 내용이 없습니다.',
+          // backgroundColor: Colors.orange[500],
         );
       } else {
         Get.snackbar('알림', '$msg에 성공했습니다.', backgroundColor: Colors.green[500]);

@@ -9,6 +9,7 @@ class TodayReport {
     'isAlarm': '알람 리스트',
     'importance': '중요 리스트',
   };
+
 }
 
 

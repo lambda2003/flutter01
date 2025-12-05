@@ -25,7 +25,7 @@ class _HomeTimerState extends State<HomeTimer> {
   bool isWorking = false;
   int loopCount = 1;
   int alarmCount = 0;
-
+  bool boolColorChange = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -43,10 +43,31 @@ class _HomeTimerState extends State<HomeTimer> {
   @override
   Widget build(BuildContext context) {
 
-    return Row(
+    // return Row(
+    //   children: [
+    //     alarmCount> 0
+    //     ? Icon(Icons.notifications_active, color: Colors.red[400])
+    //     : Icon(Icons.notifications_off),
+        
+    //     alarmCount > 0 
+    //     ? boolColorChange? Text('30분전 ($alarmCount)',style:TextStyle(color: Colors.red,fontWeight: FontWeight.bold)) : Text('30분전 ($alarmCount)',style:TextStyle(color: Colors.black))
+        
+    //     : Text('${alarmCount}'),
+    //   ],
+    // );
+    return  alarmCount> 0
+        ? Row(
       children: [
-        Icon(Icons.notifications_active, color: Colors.red[400]),
-        Text('30분전 ($alarmCount)'),
+        boolColorChange? Icon(Icons.notifications_active, color: Colors.red[400]): Icon(Icons.notifications_active, color: Colors.red[100]) ,
+        boolColorChange? Text('30분전 ($alarmCount)',style:TextStyle(color: Colors.black)) : Text('30분전 ($alarmCount)',style:TextStyle(color: Colors.red,fontWeight: FontWeight.bold))
+ 
+      ],
+    )
+    :     
+    Row(
+      children: [
+        Icon(Icons.notifications_off),
+         Text('${alarmCount}'),
       ],
     );
   }
@@ -57,17 +78,20 @@ class _HomeTimerState extends State<HomeTimer> {
     print('======== HomeTimer => alarmCheck() => called');
     print('======== HomeTimer => alarmCheck() => loopCount = ${loopCount}');
     loopCount++;
-     if (loopCount > 300) {
+     if (loopCount > 500) {
       timer.cancel();
       loopCount = 1;
       print('======== HomeTimer => alarmCheck() => Timer Destroyed by Loop Count  ========');
       setState(() {});
     }
-    if(!widget.isTurnOn)return;
-   
-    print('==================================================');
-    print('======== HomeTimer => alarmCheck() => CODE RUN');
-    print('==================================================');
+    if(!widget.isTurnOn) {
+      if(alarmCount!=0){
+        alarmCount = 0;
+        print('======== HomeTimer => alarmCheck() =>isTurnOn => off => setState');
+        setState(() {});
+      }
+      return;
+    }
 
     List<TodoList> data = await widget.db.getTodoList(
       {"today": {"n":true}},
@@ -76,9 +100,18 @@ class _HomeTimerState extends State<HomeTimer> {
     );
     if (data.length == 0) {
       print('======== HomeTimer => alarmCheck() => DATA: 0');
+      if(alarmCount!=0){
+        alarmCount = 0;
+        print('======== HomeTimer => alarmCheck() => DATA: 0 => setState');
+        setState(() {});
+      }
       return;
       
     }
+    print('==================================================');
+    print('======== HomeTimer => alarmCheck() => CODE RUN');
+    print('==================================================');
+
     DateTime now = DateTime.now();
     int xcount = 0;
     for (int i = 0; i < data.length; i++) {
@@ -104,11 +137,12 @@ class _HomeTimerState extends State<HomeTimer> {
         }
       }
     }
-    if (alarmCount != xcount) {
+    boolColorChange = !boolColorChange;
+    if (alarmCount != xcount && xcount>=0) {
       alarmCount = xcount;
       print('======== HomeTimer => alarmCheck() => setState()  ========');
-      setState(() {});
     }
+    setState(() {});
 
 
   }

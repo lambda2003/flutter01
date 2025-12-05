@@ -53,7 +53,7 @@ class TodayReportView extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: Text(
-        '오늘 (총일정: ${TodayReport.count}개, 중요 일정: ${TodayReport.importantCount})',
+        '오늘 (일정 총: ${TodayReport.count}개 중요일정: ${TodayReport.importantCount}, 알람: ${TodayReport.alarmCount})',
       ),
     );
   }

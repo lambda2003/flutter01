@@ -20,7 +20,8 @@ class DatabaseHandle {
             isAlarm integer,
             importance integer not null default 5,
             startDate text,
-            endDate text
+            endDate text,
+            isDeleted integer
           )
         """);
         await db.execute("""
@@ -47,7 +48,7 @@ class DatabaseHandle {
           )
         """);
       },
-      version: 1,
+      version: 2,
     );
   }
 
@@ -59,6 +60,8 @@ class DatabaseHandle {
     Database db = await initDatabase();
     List<Map<String, Object?>> queryResults = [];
     if (kwd == null) {
+      // 전체리스트. 
+      // 조건 없이 전체 리스트
       queryResults = await db.rawQuery(
         """
         select * from ${tableName.name.toString()} order by startDate DESC limit ?,?
@@ -68,6 +71,8 @@ class DatabaseHandle {
       );
     } else {
       if (kwd['id'] != null) {
+        // 조건 없이 ID로
+       
         queryResults = await db.rawQuery(
           """
           select * from ${tableName.name.toString()} where id=? order by startDate DESC limit ?,?
@@ -75,6 +80,7 @@ class DatabaseHandle {
           [kwd['id'], s, limitNum],
         );
       } else if (kwd['name'] != null) {
+        
         queryResults = await db.rawQuery(
           """
           select * from ${tableName.name.toString()} where title like ? or content like ? order by startDate DESC limit ?,?
@@ -115,6 +121,16 @@ class DatabaseHandle {
             [s, limitNum],
           );
         }
+      } else if (kwd['range'] != null) {
+
+
+        queryResults = await db.rawQuery(
+          """
+        select * from ${tableName.name.toString()} where startDate>=? and startDate < ? order by startDate
+      
+        """,
+          [kwd['range']['startDate'], kwd['range']['endDate']],
+        );
       }
     }
     // if(queryResults.length>0)
@@ -249,11 +265,12 @@ class DatabaseHandle {
       result = await db.transaction((tx) async {
         await tx.rawUpdate(
           """
-      update ${tableName.name.toString()} set title=?,importance=?,isAlarm=?,startDate=? where id=?
+      update ${tableName.name.toString()} set title=?,content=?,importance=?,isAlarm=?,startDate=? where id=?
     
     """,
           [
             todolist.title,
+            todolist.content,
             todolist.importance,
             todolist.isAlarm,
             todolist.startDate.toString(),
@@ -269,11 +286,12 @@ class DatabaseHandle {
           // Update
           await tx.rawUpdate(
             """
-            update todolist_alarm set title=?,importance=?,isAlarm=?,startDate=? where id=?
+            update todolist_alarm set title=?,content=?,importance=?,isAlarm=?,startDate=? where id=?
           
           """,
             [
               todolist.title,
+              todolist.content,
               todolist.importance,
               todolist.isAlarm,
               todolist.startDate.toString(),
@@ -302,11 +320,12 @@ class DatabaseHandle {
     } else {
       result = await db.rawUpdate(
         """
-      update ${tableName.name.toString()} set title=?,importance=?,isAlarm=?,startDate=? where id=?
+      update ${tableName.name.toString()} set title=?,content=?,importance=?,isAlarm=?,startDate=? where id=?
     
     """,
         [
           todolist.title,
+          todolist.content,
           todolist.importance,
           todolist.isAlarm,
           todolist.startDate.toString(),
@@ -365,6 +384,26 @@ class DatabaseHandle {
     return result;
   }
 
+  // 소프트 제거
+  Future<int> deleteSoft(int id) async {
+    int result = 0;
+    Database db = await initDatabase();
+    try{
+    result = await db.transaction((tx) async {
+      await tx.rawUpdate('update todolist set isDeleted=1 where id=?',[id]);
+      await tx.rawDelete("delete from todolist_alarm where id=?", [id]);
+      return 100;
+    });
+    } catch(err){
+      print('== DB: SoftDELETE ERROR ${err.toString()}');
+      result = 0;
+    }
+    return result;
+
+  }
+
+
+  // 완전 제거
   Future<int> deleteTodoList(int id) async {
     int result = 0;
     try {
@@ -389,6 +428,9 @@ class DatabaseHandle {
     }
   }
 
+
+
+  // 알람 제거
   Future<int> deleteAalarm(int id) async {
     Database db = await initDatabase();
 

@@ -196,6 +196,7 @@ class _UpdateTodolistState extends State<UpdateTodolist> {
       TodoList todolist = TodoList(
         id: todo!.id,
         title: titleController.text.trim(),
+        content: contentController.text.trim(),
         startDate: startDate,
         importance: dropDownValue,
         isAlarm: isAlarm ? 1 : 0,
