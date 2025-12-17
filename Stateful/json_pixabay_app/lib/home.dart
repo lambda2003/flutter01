@@ -31,7 +31,6 @@ class _HomeState extends State<Home> {
       if (scrollController.offset >=
               scrollController.position.maxScrollExtent &&
           !scrollController.position.outOfRange) {
-        print('aaaaa');
         getJSONData();
       }
     });
@@ -49,52 +48,58 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 10,
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: searchTextController,
-                    decoration: InputDecoration(labelText: '찾는 이미지를 검색해 보세요'),
-                    onSubmitted: (value) => searchKwd(),
-                    onTap: (){searchTextController.text = '';},
-                  ),
-                  Row(
-                    children: [
-                      kwds.length>0?Text('키워드: '): Text(''),
-                      Row(
-                        spacing: 10,
-                        children: List.generate(kwds.length, (index)=>
-                          GestureDetector(
-                            onTap:(){
-                            
-                                searchTextController.text=kwds[index];
+      appBar: AppBar(toolbarHeight: 10),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: searchTextController,
+                      decoration: InputDecoration(labelText: '찾는 이미지를 검색해 보세요'),
+                      onSubmitted: (value) => searchKwd(),
+                      onTap: () {
+                        searchTextController.text = '';
+                      },
+                    ),
+                    Row(
+                      children: [
+                        kwds.length > 0 ? Text('키워드: ') : Text(''),
+                        Row(
+                          spacing: 10,
+                          children: List.generate(
+                            kwds.length,
+                            (index) => GestureDetector(
+                              onTap: () {
+                                searchTextController.text = kwds[index];
                                 getJSONData();
-                              
-                              
-                            },
-                            child: Text(kwds[index]))
-                      )
-                      ),
-                    ],
-                  )
-                ],
+                              },
+                              child: Text(kwds[index]),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            isLoading
-                  ? Center(child: const CircularProgressIndicator())
-                  : 
-            Container(
-              width: MediaQuery.of(context).size.width - 10,
-              height: MediaQuery.of(context).size.height -250,
-              // color: Colors.green,
-              child: GridView.builder(
+
+              Container(
+                width: MediaQuery.of(context).size.width - 10,
+                height: MediaQuery.of(context).size.height - 150,
+                foregroundDecoration: BoxDecoration(
+                  color:isLoading? Color.fromARGB(0, 100, 100, 100) : null,
+                ),
+                // color: Colors.green,
+                child: Stack(
+                  children: [
+                    isLoading
+                        ? Center(child: const CircularProgressIndicator(color: Colors.deepPurple,strokeWidth: 10,))
+                        : Text(''),
+                    GridView.builder(
                       controller: scrollController,
                       padding: const EdgeInsets.all(5),
                       gridDelegate:
@@ -110,7 +115,11 @@ class _HomeState extends State<Home> {
                         return GestureDetector(
                           onTap: () {
                             Get.to(
-                              () => ItemView(url: data[index]['webformatURL'],w: data[index]['webformatWidth'], h:data[index]['webformatHeight']),
+                              () => ItemView(
+                                url: data[index]['webformatURL'],
+                                w: data[index]['webformatWidth'],
+                                h: data[index]['webformatHeight'],
+                              ),
                             );
                             // print();
                           },
@@ -128,7 +137,7 @@ class _HomeState extends State<Home> {
                                 image: NetworkImage(data[index]['previewURL']),
                                 fit: BoxFit.fill,
                               ),
-                              color: Colors.green,
+                              // color: Colors.green,
                             ),
 
                             // selected: index < 4,
@@ -136,8 +145,11 @@ class _HomeState extends State<Home> {
                         );
                       },
                     ),
-            ),
-          ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -155,16 +167,16 @@ class _HomeState extends State<Home> {
     isLoading = true;
     setState(() {});
     kwd = kwd.replaceAll(' ', '+');
-      if(!kwds.contains(kwd)){
-        kwds.add(kwd);
-        if(kwds.length>5){
-          kwds.removeAt(0);
-        }
+    if (!kwds.contains(kwd)) {
+      kwds.add(kwd);
+      if (kwds.length > 5) {
+        kwds.removeAt(0);
       }
+    }
     var url = Uri.parse(
       'https://pixabay.com/api/?key=53746123-732a2b7238180e66c1522df6b&q=$kwd&image_type=photo&page=$page&per_page=$per_page',
     );
-
+    await Future.delayed(Duration(seconds: 3));
     var response = await http.get(url);
 
     if (response.body.isNotEmpty) {
